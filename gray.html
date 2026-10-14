@@ -127,7 +127,48 @@
       .gray-compass-button svg {
         transition: none !important;
       }
-    }
+      
+}
+
+/* 立ち絵とコンパスの表示修正 */
+.gray-profile .profile-art {
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+.gray-profile .gray-art-switcher {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  display: block !important;
+}
+
+.gray-profile .gray-character-image {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+
+.gray-profile .gray-compass-button {
+  position: absolute !important;
+  right: 12px !important;
+  bottom: 12px !important;
+  z-index: 999 !important;
+  width: 44px !important;
+  height: 44px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
   </style>
 </head>
 
