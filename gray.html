@@ -1,39 +1,347 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#080b20">
-  <title>GRAY BATTLESHIP | ASTRAEUM</title><link rel="stylesheet" href="style.css">
+  <title>GRAY BATTLESHIP | ASTRAEUM</title>
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    /* グレイの立ち絵 */
+    .gray-art-switcher {
+      position: relative;
+      width: 100%;
+      min-height: 420px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: 18px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(148, 157, 188, .12),
+        transparent 70%
+      );
+      transition: background .6s ease;
+    }
+
+    .gray-art-switcher.is-awakened {
+      background: radial-gradient(
+        ellipse at center,
+        rgba(177, 133, 235, .24),
+        rgba(93, 70, 143, .08) 55%,
+        transparent 80%
+      );
+    }
+
+    .gray-art-switcher .gray-character-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 700px;
+      object-fit: contain;
+      transition: opacity .3s ease, transform .5s ease;
+    }
+
+    .gray-character-image.is-changing {
+      opacity: 0;
+      transform: scale(.97);
+    }
+
+    /* 立ち絵右下のコンパス */
+    .gray-compass-button {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      z-index: 5;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 1px solid rgba(205, 215, 235, .65);
+      border-radius: 50%;
+      background: rgba(22, 29, 48, .78);
+      color: #e1e6f2;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 3px 14px rgba(0,0,0,.2);
+      transition: background .4s, border-color .4s,
+                  box-shadow .4s;
+    }
+
+    .gray-compass-button svg {
+      width: 25px;
+      height: 25px;
+      transition: transform .65s ease;
+    }
+
+    .gray-compass-button.is-awakened {
+      background: rgba(72, 51, 108, .85);
+      color: #e8ceff;
+      border-color: #c8a7ef;
+      box-shadow: 0 0 18px rgba(188, 139, 255, .45);
+    }
+
+    .gray-compass-button.is-awakened svg {
+      transform: rotate(180deg);
+    }
+
+    .gray-compass-button:focus-visible {
+      outline: 2px solid #e8ceff;
+      outline-offset: 4px;
+    }
+
+    /* 覚醒時の文字演出 */
+    .gray-profile .profile-copy h1,
+    .gray-profile .profile-quote,
+    .gray-profile .profile-intro {
+      transition: color .4s ease, opacity .4s ease;
+    }
+
+    .gray-profile.gray-awakened .profile-copy h1 {
+      color: #d9baff;
+    }
+
+    .gray-profile.gray-awakened .profile-quote {
+      color: #ead9ff;
+    }
+
+    .gray-form-caption {
+      position: absolute;
+      left: 14px;
+      bottom: 18px;
+      margin: 0;
+      font-size: 10px;
+      letter-spacing: .16em;
+      color: #b7bccc;
+      pointer-events: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .gray-character-image,
+      .gray-compass-button,
+      .gray-compass-button svg {
+        transition: none !important;
+      }
+    }
+  </style>
 </head>
+
 <body class="profile-page gray-profile">
-  <header class="site-header"><a class="wordmark" href="index.html">ASTRAEUM<span>✦</span></a><nav><a href="index.html">HOME</a><a class="active" href="index.html#characters">CHARACTERS</a></nav></header>
+
+  <header class="site-header">
+    <a class="wordmark" href="index.html">
+      ASTRAEUM<span>✦</span>
+    </a>
+    <nav>
+      <a href="index.html">HOME</a>
+      <a class="active" href="index.html#characters">
+        CHARACTERS
+      </a>
+    </nav>
+  </header>
+
   <main>
-    <div class="breadcrumbs"><a href="index.html">HOME</a><span>/</span><a href="index.html#characters">CHARACTERS</a><span>/</span><span>GRAY</span></div>
+    <div class="breadcrumbs">
+      <a href="index.html">HOME</a>
+      <span>/</span>
+      <a href="index.html#characters">CHARACTERS</a>
+      <span>/</span>
+      <span>GRAY</span>
+    </div>
+
     <section class="profile-hero">
+
       <div class="profile-art">
-      <img src="ECA1CE16-9FDF-471B-AB55-BCA6C6883384.png" alt="グレイの全身立ち絵">
-        <div class="art-placeholder"><span>GRAY</span><small>images/gray.png に立ち絵を入れてね</small></div>
+        <div class="gray-art-switcher" id="grayArtSwitcher">
+
+          <img
+            id="grayCharacterImage"
+            class="gray-character-image"
+            src="ECA1CE16-9FDF-471B-AB55-BCA6C6883384.png"
+            alt="グレイの通常形態の全身立ち絵"
+          >
+
+          <p class="gray-form-caption" id="grayFormCaption">
+            NORMAL FORM
+          </p>
+
+          <button
+            type="button"
+            class="gray-compass-button"
+            id="grayCompassButton"
+            aria-label="覚醒形態に切り替える"
+            aria-pressed="false"
+            title="形態切り替え"
+          >
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.4"
+                 stroke-linecap="round"
+                 stroke-linejoin="round"
+                 aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M15.7 8.3 13.4 13.4 8.3 15.7 10.6 10.6Z"></path>
+              <path d="M12 2v2M12 20v2M2 12h2M20 12h2"></path>
+            </svg>
+          </button>
+
+        </div>
       </div>
+
       <div class="profile-copy">
-        <p class="eyebrow">CHARACTER No. 02 · BATTLESHIP GRAY</p>
-        <h1>GRAY</h1><p class="jp-name">グレイ・バトルシップ</p>
-        <p class="profile-quote">「さて、次はどんな顔を見せてくれるのかな。」</p>
-        <p class="profile-intro">落ち着いた物腰と、どこか人をからかうような余裕を持つ人物。穏やかな微笑みの奥には、簡単には読み取れない一面がある。</p>
-        <div class="color-chip"><span></span><div><small>BIRTHDAY COLOR</small><strong>BATTLESHIP GRAY</strong></div></div>
+        <p class="eyebrow" id="grayEyebrow">
+          CHARACTER No. 02 · BATTLESHIP GRAY
+        </p>
+
+        <h1 id="grayTitle">GRAY</h1>
+
+        <p class="jp-name">
+          グレイ・バトルシップ
+        </p>
+
+        <p class="profile-quote" id="grayQuote">
+          「さて、次はどんな顔を見せてくれるのかな。」
+        </p>
+
+        <p class="profile-intro" id="grayIntro">
+          落ち着いた物腰と、どこか人をからかうような
+          余裕を持つ人物。穏やかな微笑みの奥には、
+          簡単には読み取れない一面がある。
+        </p>
+
+        <div class="color-chip">
+          <span></span>
+          <div>
+            <small>BIRTHDAY COLOR</small>
+            <strong>BATTLESHIP GRAY</strong>
+          </div>
+        </div>
       </div>
+
     </section>
+
     <section class="profile-details">
-      <div class="section-heading left"><p class="eyebrow">PERSONAL DATA</p><h2>PROFILE</h2></div>
+      <div class="section-heading left">
+        <p class="eyebrow">PERSONAL DATA</p>
+        <h2>PROFILE</h2>
+      </div>
+
       <dl class="data-list">
         <div><dt>誕生日</dt><dd>4月17日</dd></div>
         <div><dt>年齢</dt><dd>28歳</dd></div>
         <div><dt>身長</dt><dd>178.6 cm</dd></div>
-        <div><dt>雰囲気</dt><dd>静か・優雅・ミステリアス</dd></div>
-        <div><dt>性格</dt><dd>冷静・意味深・少しからかい上手</dd></div>
+        <div>
+          <dt>雰囲気</dt>
+          <dd id="grayMood">静か・優雅・ミステリアス</dd>
+        </div>
+        <div>
+          <dt>性格</dt>
+          <dd>冷静・意味深・少しからかい上手</dd>
+        </div>
       </dl>
-      <p class="edit-note">※プロフィールはHTMLを編集して自由に変更できます。</p>
     </section>
-    <nav class="profile-pagination"><a href="olive.html">← PREVIOUS CHARACTER</a><a href="index.html">CHARACTER LIST →</a></nav>
+
+    <nav class="profile-pagination">
+      <a href="olive.html">← PREVIOUS CHARACTER</a>
+      <a href="index.html">CHARACTER LIST →</a>
+    </nav>
   </main>
-  <footer class="site-footer"><a class="wordmark" href="index.html">ASTRAEUM<span>✦</span></a><small>© ASTRAEUM · Original Character Project</small></footer>
-</body></html>
+
+  <footer class="site-footer">
+    <a class="wordmark" href="index.html">
+      ASTRAEUM<span>✦</span>
+    </a>
+    <small>© ASTRAEUM · Original Character Project</small>
+  </footer>
+
+  <script>
+    const normalImage =
+      "ECA1CE16-9FDF-471B-AB55-BCA6C6883384.png";
+
+    // 覚醒後の画像をGitHubにアップロードしたら
+    // ファイル名を gray-awakened.png にしてください
+    const awakenedImage = "gray-awakened.png";
+
+    const button = document.getElementById("grayCompassButton");
+    const image = document.getElementById("grayCharacterImage");
+    const art = document.getElementById("grayArtSwitcher");
+    const caption = document.getElementById("grayFormCaption");
+
+    const title = document.getElementById("grayTitle");
+    const quote = document.getElementById("grayQuote");
+    const intro = document.getElementById("grayIntro");
+    const eyebrow = document.getElementById("grayEyebrow");
+    const mood = document.getElementById("grayMood");
+
+    let awakened = false;
+    let changing = false;
+
+    // 画像を事前に読み込む
+    const preload = new Image();
+    preload.src = awakenedImage;
+
+    button.addEventListener("click", () => {
+      if (changing) return;
+
+      changing = true;
+      awakened = !awakened;
+
+      image.classList.add("is-changing");
+
+      setTimeout(() => {
+        image.src = awakened ? awakenedImage : normalImage;
+
+        image.alt = awakened
+          ? "グレイの覚醒形態の全身立ち絵"
+          : "グレイの通常形態の全身立ち絵";
+
+        title.textContent = awakened
+          ? "AWAKENED GRAY"
+          : "GRAY";
+
+        quote.textContent = awakened
+          ? "「変わらぬ想いを、いつまでも。」"
+          : "「さて、次はどんな顔を見せてくれるのかな。」";
+
+        intro.textContent = awakened
+          ? "静寂の奥に封じられていた力が、星々の導きによって目覚める。銀灰色の髪をなびかせ、羅針盤を象った杖を手にするグレイ。彼の周囲を舞う淡紫色の蝶は、変わらぬ想いと永遠の喜びの象徴。"
+          : "落ち着いた物腰と、どこか人をからかうような余裕を持つ人物。穏やかな微笑みの奥には、簡単には読み取れない一面がある。";
+
+        eyebrow.textContent = awakened
+          ? "CHARACTER No. 02 · AWAKENED FORM"
+          : "CHARACTER No. 02 · BATTLESHIP GRAY";
+
+        mood.textContent = awakened
+          ? "神秘的・優雅・星々の導き"
+          : "静か・優雅・ミステリアス";
+
+        caption.textContent = awakened
+          ? "AWAKENED FORM"
+          : "NORMAL FORM";
+
+        art.classList.toggle("is-awakened", awakened);
+        button.classList.toggle("is-awakened", awakened);
+        document.body.classList.toggle("gray-awakened", awakened);
+
+        button.setAttribute("aria-pressed", String(awakened));
+        button.setAttribute(
+          "aria-label",
+          awakened
+            ? "通常形態に切り替える"
+            : "覚醒形態に切り替える"
+        );
+
+        image.classList.remove("is-changing");
+        changing = false;
+      }, 300);
+    });
+  </script>
+
+</body>
+</html>
